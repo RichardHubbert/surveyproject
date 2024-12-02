@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import QuestionDesigner from './QuestionDesigner';
-import QuestionPreview from './QuestionPreview';
+import SurveyPreview from './SurveyPreview';
 
 function SurveyDesigner() {
   const [questions, setQuestions] = useState([]);
@@ -32,7 +32,7 @@ function SurveyDesigner() {
         <QuestionDesigner onAddQuestion={handleAddQuestion} />
       </div>
       <div className="col-span-8 max-h-[calc(100vh-32px)] overflow-y-auto" ref={previewRef}>
-        <QuestionPreview 
+        <SurveyPreview 
           questions={questions}
           onQuestionsReorder={handleQuestionsReorder}
           onDeleteQuestion={handleDeleteQuestion}
