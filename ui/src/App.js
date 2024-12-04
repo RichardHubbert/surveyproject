@@ -9,6 +9,7 @@ import { signInAnonymously } from 'firebase/auth';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -21,6 +22,8 @@ function App() {
         }
       } else {
         setUser(user);
+        const token = await user.getIdToken();
+        setAuthToken(token);
       }
       setLoading(false);
     });
@@ -55,7 +58,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Navbar user={user} />
       <main className="h-screen">
-        <SurveyDesigner />
+        <SurveyDesigner authToken={authToken} />
       </main>
     </div>
   );

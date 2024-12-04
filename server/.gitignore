@@ -1,0 +1,32 @@
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+
+# Firebase service account
+*-service-account.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional: MacOS system files
+.DS_Store
+
+# Optional: IDE files
+.idea/
+.vscode/ 
