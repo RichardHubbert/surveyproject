@@ -124,4 +124,33 @@ export const initializeAuthListener = () => {
             localStorage.removeItem('userToken');
         }
     });
+};
+
+export const createSurvey = async () => {
+    return apiRequest('/api/surveys/create', {
+        method: 'POST',
+        body: JSON.stringify({}),  // Empty body since we don't need to send any data
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+};
+
+export const updateSurvey = async (surveyId, questions) => {
+    const surveyData = {
+        title: 'Updated Survey',
+        questions: questions.map(q => ({
+            ...q,
+            id: q.id || Math.random().toString(36).substr(2, 9)
+        }))
+    };
+
+    console.log('Updating survey data:', surveyData);
+    return apiRequest(`/api/surveys/${surveyId}`, {
+        method: 'PUT',
+        body: JSON.stringify(surveyData),
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
 }; 

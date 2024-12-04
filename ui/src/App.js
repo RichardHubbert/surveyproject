@@ -9,12 +9,11 @@ import { signInAnonymously } from 'firebase/auth';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authToken, setAuthToken] = useState(null);
+  const [currentSurveyId, setCurrentSurveyId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        // Sign in anonymously if no user
         try {
           await signInAnonymously(auth);
         } catch (error) {
@@ -22,8 +21,6 @@ function App() {
         }
       } else {
         setUser(user);
-        const token = await user.getIdToken();
-        setAuthToken(token);
       }
       setLoading(false);
     });
@@ -31,17 +28,20 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  const handleNewSurvey = (surveyId) => {
+    setCurrentSurveyId(surveyId);
+  };
+
   if (loading) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <p>Loading...</p>
     </div>;
   }
 
-  // If user is anonymous, only show the sign-in modal
   if (user?.isAnonymous) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar user={user} />
+        <Navbar user={user} onNewSurvey={handleNewSurvey} />
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Welcome to Survey Designer</h2>
@@ -53,12 +53,11 @@ function App() {
     );
   }
 
-  // Only show the main app if user is properly authenticated
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar user={user} />
+      <Navbar user={user} onNewSurvey={handleNewSurvey} />
       <main className="h-screen">
-        <SurveyDesigner authToken={authToken} />
+        <SurveyDesigner surveyId={currentSurveyId} />
       </main>
     </div>
   );

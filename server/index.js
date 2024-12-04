@@ -101,6 +101,49 @@ app.post('/api/surveys', authenticateUser, async (req, res) => {
     }
 });
 
+// New endpoint to create a survey and generate an ID
+app.post('/api/surveys/create', authenticateUser, async (req, res) => {
+    try {
+        const survey = new models.Survey({
+            userId: req.user.uid,
+            title: 'New Survey',
+            questions: []
+        });
+
+        const savedSurvey = await survey.save();
+        console.log('New survey created:', savedSurvey);
+
+        res.status(201).json({ 
+            surveyId: savedSurvey._id.toString()
+        });
+    } catch (error) {
+        console.error('Create Survey Error:', error);
+        res.status(500).json({ error: 'Failed to create survey', details: error.message });
+    }
+});
+
+// Update existing survey endpoint to check user ownership
+app.put('/api/surveys/:id', authenticateUser, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { questions, title } = req.body;
+
+        const survey = await models.Survey.findOne({ _id: id, userId: req.user.uid });
+        if (!survey) {
+            return res.status(404).json({ error: 'Survey not found or unauthorized' });
+        }
+
+        survey.title = title || survey.title;
+        survey.questions = questions;
+        const updatedSurvey = await survey.save();
+
+        res.status(200).json(updatedSurvey);
+    } catch (error) {
+        console.error('Update Survey Error:', error);
+        res.status(500).json({ error: 'Failed to update survey', details: error.message });
+    }
+});
+
 // Add a health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });

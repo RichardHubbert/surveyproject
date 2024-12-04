@@ -1,13 +1,29 @@
 import { auth } from '../firebase/config';
 import { signOut } from 'firebase/auth';
-import SignIn from './SignIn';
+import { createSurvey } from '../utils/serverComm';
 
-function Navbar({ user }) {
+function Navbar({ user, onNewSurvey }) {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
     } catch (error) {
       console.error("Sign out error:", error);
+    }
+  };
+
+  const handleNewSurvey = async () => {
+    try {
+      const response = await createSurvey();
+      console.log('Create survey response:', response);
+      if (response && response.surveyId) {
+        onNewSurvey(response.surveyId);
+      } else {
+        console.error('Invalid response format:', response);
+        throw new Error('Invalid response format from server');
+      }
+    } catch (error) {
+      console.error("Create survey error:", error);
+      alert('Failed to create new survey: ' + error.message);
     }
   };
 
@@ -30,6 +46,12 @@ function Navbar({ user }) {
                   className="text-gray-600 hover:text-gray-800"
                 >
                   Sign Out
+                </button>
+                <button
+                  onClick={handleNewSurvey}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  New Survey
                 </button>
               </div>
             )}
