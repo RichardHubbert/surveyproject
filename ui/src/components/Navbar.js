@@ -1,8 +1,9 @@
 import { auth } from '../firebase/config';
 import { signOut } from 'firebase/auth';
 import { createSurvey } from '../utils/serverComm';
+import { useState } from 'react';
 
-function Navbar({ user, onNewSurvey }) {
+function Navbar({ user }) {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -11,27 +12,11 @@ function Navbar({ user, onNewSurvey }) {
     }
   };
 
-  const handleNewSurvey = async () => {
-    try {
-      const response = await createSurvey();
-      console.log('Create survey response:', response);
-      if (response && response.surveyId) {
-        onNewSurvey(response.surveyId);
-      } else {
-        console.error('Invalid response format:', response);
-        throw new Error('Invalid response format from server');
-      }
-    } catch (error) {
-      console.error("Create survey error:", error);
-      alert('Failed to create new survey: ' + error.message);
-    }
-  };
-
   return (
     <nav className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0">
+          <div className="flex items-center space-x-4">
             <h1 className="text-xl font-bold">Survey Designer</h1>
           </div>
           
@@ -46,12 +31,6 @@ function Navbar({ user, onNewSurvey }) {
                   className="text-gray-600 hover:text-gray-800"
                 >
                   Sign Out
-                </button>
-                <button
-                  onClick={handleNewSurvey}
-                  className="text-gray-600 hover:text-gray-800"
-                >
-                  New Survey
                 </button>
               </div>
             )}

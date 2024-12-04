@@ -104,9 +104,10 @@ app.post('/api/surveys', authenticateUser, async (req, res) => {
 // New endpoint to create a survey and generate an ID
 app.post('/api/surveys/create', authenticateUser, async (req, res) => {
     try {
+        const { title } = req.body;  // Get the title from the request body
         const survey = new models.Survey({
             userId: req.user.uid,
-            title: 'New Survey',
+            title: title || 'New Survey',  // Use the provided title or default
             questions: []
         });
 
@@ -152,6 +153,42 @@ app.get('/health', (req, res) => {
 // Add a root endpoint
 app.get('/', (req, res) => {
     res.json({ message: 'Survey API Server' });
+});
+
+// Add this new route to get all surveys for a user
+app.get('/api/surveys', authenticateUser, async (req, res) => {
+    try {
+        const surveys = await models.Survey.find({ userId: req.user.uid })
+            .sort({ createdAt: -1 }); // Sort by creation date, newest first
+        res.json(surveys);
+    } catch (error) {
+        console.error('Get Surveys Error:', error);
+        res.status(500).json({ error: 'Failed to fetch surveys', details: error.message });
+    }
+});
+
+app.get('/api/surveys/:id/results', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('Fetching results for survey:', id);
+    
+    const survey = await models.Survey.findOne({ _id: id, userId: req.user.uid });
+    if (!survey) {
+      return res.status(404).json({ error: 'Survey not found or unauthorized' });
+    }
+
+    // For now, return a simple response to test the endpoint
+    res.json({
+      surveyId: id,
+      responses: [] // We'll add actual responses later
+    });
+  } catch (error) {
+    console.error('Get Survey Results Error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch survey results', 
+      details: error.message 
+    });
+  }
 });
 
 const PORT = process.env.PORT || 5000;

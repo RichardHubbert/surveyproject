@@ -73,9 +73,9 @@ export const get = (url) => {
     });
 };
 
-export const saveSurvey = async (questions) => {
+export const saveSurvey = async (questions, title) => {
     const surveyData = {
-        title: 'New Survey',
+        title,
         questions: questions.map(q => ({
             ...q,
             id: q.id || Math.random().toString(36).substr(2, 9)
@@ -126,19 +126,19 @@ export const initializeAuthListener = () => {
     });
 };
 
-export const createSurvey = async () => {
+export const createSurvey = async (title) => {
     return apiRequest('/api/surveys/create', {
         method: 'POST',
-        body: JSON.stringify({}),  // Empty body since we don't need to send any data
+        body: JSON.stringify({ title }),  // Send the title
         headers: {
             'Accept': 'application/json'
         }
     });
 };
 
-export const updateSurvey = async (surveyId, questions) => {
+export const updateSurvey = async (surveyId, questions, title) => {
     const surveyData = {
-        title: 'Updated Survey',
+        title,
         questions: questions.map(q => ({
             ...q,
             id: q.id || Math.random().toString(36).substr(2, 9)
@@ -153,4 +153,37 @@ export const updateSurvey = async (surveyId, questions) => {
             'Accept': 'application/json'
         }
     });
+};
+
+// Add this new function to get all surveys for the current user
+export const getSurveys = async () => {
+    return get('/api/surveys');
+};
+
+export const getSurveyResults = async (surveyId) => {
+  try {
+    if (!surveyId) {
+      throw new Error('Survey ID is required');
+    }
+
+    console.log('Fetching results for survey:', surveyId);
+    const response = await apiRequest(`/api/surveys/${surveyId}/results`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Raw survey results response:', response);
+    
+    // Handle empty results case
+    if (!response || (Array.isArray(response) && response.length === 0)) {
+      return [{ message: 'No responses have been submitted for this survey yet.' }];
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Error in getSurveyResults:', error);
+    throw new Error(`Failed to fetch survey results: ${error.message}`);
+  }
 }; 
